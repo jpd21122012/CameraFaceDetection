@@ -14,6 +14,7 @@ namespace Windows {
                 ref class CaptureElement;
                 ref class Button;
                 ref class Canvas;
+                ref class TextBox;
             }
         }
     }
@@ -37,6 +38,7 @@ namespace FaceDetection
         private: ::Windows::UI::Xaml::Controls::CaptureElement^ PreviewControl;
         private: ::Windows::UI::Xaml::Controls::Button^ PhotoButton;
         private: ::Windows::UI::Xaml::Controls::Canvas^ FacesCanvas;
+        private: ::Windows::UI::Xaml::Controls::TextBox^ tbResult;
     };
 }
 

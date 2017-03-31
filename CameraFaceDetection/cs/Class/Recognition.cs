@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using CameraFaceDetection;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FaceDetection;
 
 namespace FaceVerification.Class { 
 public class Recognition
@@ -19,6 +20,8 @@ public class Recognition
         ConexionBD bd = new ConexionBD();
         public async Task HttpFindSimilarAsync(string fileLocation)
         {
+            //Windows.Storage.StorageFolder storageFolder=Windows.Storage.ApplicationData.Current.LocalFolder;
+           // Stream x= await storageFolder.OpenStreamForReadAsync("");
             Debug.WriteLine("Entered in HTTPFIND...");
             using (var fileStream = File.OpenRead(fileLocation))
             {
@@ -35,7 +38,8 @@ public class Recognition
                     Debug.WriteLine(exception.ToString());
                 }
                 fileStream.Dispose();
-            }
+           }
+            Debug.WriteLine("Entraste a similarfinderasync ");
             try
             {
                Guid idGuid= Guid.Parse(httpidlist);
@@ -49,18 +53,21 @@ public class Recognition
                 //Evaluar si es mayor a .7 entonces regresa los datos de la persona
                 if (idconfReturned >= .67)
                 {
+                    //franja roja en main
                     Debug.WriteLine("Usuario encontrado");
                     // busqueda en la base de datos
-                    Debug.WriteLine("Entrando a metodo bd.visualizar info de sujeto \n");
-                    //Descomentarbd.VisualizarInfo(idReturned);
+                    Debug.WriteLine("Entrando a metodo visualizar info de sujeto \n");
+                    MainPage.idsearch = idReturned;
+                }
+                else
+                {
+                    //poner una franja verde en el main
                 }
             }
             catch (Exception exception)
             {
                 Debug.WriteLine(exception.ToString());
             }
-
-
         }
 
         //PersistentIdList pil = new PersistentIdList();

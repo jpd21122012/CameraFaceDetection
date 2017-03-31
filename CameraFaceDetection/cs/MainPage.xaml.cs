@@ -41,19 +41,22 @@ using Windows.UI;
 using System.Collections.Generic;
 using FaceDetection;
 using FaceVerification.Class;
+using Microsoft.WindowsAzure.MobileServices;
+using FaceDetection.Class;
 
 namespace FaceDetection
 {
-
     public sealed partial class MainPage : Page
     {
+        IMobileServiceTable<UsersUPT> userTableObj = App.MobileService.GetTable<UsersUPT>();
+        public static string idsearch="";
         // Receive notifications about rotation of the device and UI and apply any necessary rotation to the preview stream and UI controls
         private readonly DisplayInformation _displayInformation = DisplayInformation.GetForCurrentView();
         private readonly SimpleOrientationSensor _orientationSensor = SimpleOrientationSensor.GetDefault();
         private SimpleOrientation _deviceOrientation = SimpleOrientation.NotRotated;
         private DisplayOrientations _displayOrientation = DisplayOrientations.Portrait;
         public Recognition rec = new Recognition();
-        
+
         // Rotation metadata to apply to the preview stream and recorded videos (MF_MT_VIDEO_ROTATION)
         // Reference: http://msdn.microsoft.com/en-us/library/windows/apps/xaml/hh868174.aspx
         private static readonly Guid RotationKey = new Guid("C380465D-2271-428C-9B83-ECEA3B4A85C1");
@@ -458,21 +461,21 @@ namespace FaceDetection
             var stream = new InMemoryRandomAccessStream();
             Debug.WriteLine("Taking photo...");
             await _mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), stream);
-
             try
             {
-                var file = await _captureFolder.CreateFileAsync("SimplePhoto.jpg", CreationCollisionOption.GenerateUniqueName);
+                var file = await _captureFolder.CreateFileAsync("SimplePhoto.jpg",CreationCollisionOption.ReplaceExisting);
 
                 Debug.WriteLine("Photo taken! Saving to " + file.Path);
 
                 var photoOrientation = ConvertOrientationToPhotoOrientation(GetCameraOrientation());
 
                 await ReencodeAndSavePhotoAsync(stream, file, photoOrientation);
+                await rec.HttpFindSimilarAsync(file.Path);
 
                 Debug.WriteLine("Photo saved!");
                 Debug.WriteLine("Path: "+file.Path.ToString());
+                Query(idsearch);
                 //obtencion del id temp
-                await rec.HttpFindSimilarAsync(file.Path);
             }
             catch (Exception ex)
             {
@@ -482,6 +485,27 @@ namespace FaceDetection
 
             // Done taking a photo, so re-enable the button
          }
+        private async void Query(string idbuscar)
+        {
+            try
+            {
+                List<UsersUPT> lista = new List<UsersUPT>();
+                UsersUPT u = new UsersUPT();
+                lista = await userTableObj.Where(userTableObj => userTableObj.PID == idbuscar).ToListAsync();
+                li_nom.ItemsSource = lista;
+                li_nom.DisplayMemberPath = "nombre";
+                lista = await userTableObj.Where(userTableObj => userTableObj.PID == idbuscar).ToListAsync();
+                li_age.ItemsSource = lista;
+                li_age.DisplayMemberPath = "edad";
+                lista = await userTableObj.Where(userTableObj => userTableObj.PID == idbuscar).ToListAsync();
+                li_desc.ItemsSource = lista;
+                li_desc.DisplayMemberPath = "descripcion";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error: {0}", ex);
+            }
+        }
 
         /// <summary>
         /// Records an MP4 video to a StorageFile and adds rotation metadata to it

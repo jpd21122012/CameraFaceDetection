@@ -6,6 +6,7 @@ namespace CameraFaceDetection
 {
     public class ConexionBD
     {
+
         /*public SqlConnection conn;
         //Comparer comp = new Comparer();
         public static string identificator;
